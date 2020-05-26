@@ -11,7 +11,7 @@ import torch
 import torchvision
 import matplotlib.pyplot as plt
 
-from mnist_nn.networks import LeNet
+from mnist_nn.networks import LeNet, MLPNet
 from mnist_nn.core     import Trainer # Class definition must be visible to load
 
 class Inferencer(object):
@@ -56,6 +56,6 @@ class Inferencer(object):
         self.network.eval()
 
 if __name__ == "__main__":
-    network = LeNet()
+    network = MLPNet()
     inferencer = Inferencer(batch_size = 1000, network = network)
     inferencer.display_6predictions()
