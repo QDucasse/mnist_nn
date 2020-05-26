@@ -7,6 +7,7 @@
 
 from __future__ import absolute_import
 
-__all__ = ["cnv2_fc2"]
+__all__ = ["lenet", "mlpnet"]
 
-from .cnv2_fc2 import *
+from .lenet  import *
+from .mlpnet import *

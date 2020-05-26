@@ -7,7 +7,8 @@
 
 from __future__ import absolute_import
 
-__all__ = ["data_visualiser","trainer"]
+__all__ = ["trainer", "inferencer","visualiser"]
 
-from .data_visaliser import *
-from .trainer        import *
+from .trainer    import *
+from .inferencer import *
+from .visualiser import *

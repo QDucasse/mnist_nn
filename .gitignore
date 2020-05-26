@@ -129,4 +129,4 @@ Thumbs.db
 
 # Datasets
 files/
-!results/checkpoint.tar
+!results/*.tar

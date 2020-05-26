@@ -11,7 +11,8 @@ import torch
 import torchvision
 import matplotlib.pyplot as plt
 
-from mnist_nn.networks import Cnv2_FC2
+from mnist_nn.networks import LeNet
+from mnist_nn.core     import Trainer # Class definition must be visible to load
 
 class Inferencer(object):
     def __init__(self,batch_size,network):
@@ -49,10 +50,12 @@ class Inferencer(object):
 
     def load_trained_network(self):
         '''Load a saved trained network model'''
-        self.network.load_state_dict(torch.load('results/model.pth'))
+        path = 'results/trained_' + self.network.name + '.tar'
+        dict = torch.load(path)
+        self.network.load_state_dict(dict['network_state_dict'])
         self.network.eval()
 
 if __name__ == "__main__":
-    network = Cnv2_FC2()
+    network = LeNet()
     inferencer = Inferencer(batch_size = 1000, network = network)
     inferencer.display_6predictions()

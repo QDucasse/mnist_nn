@@ -13,7 +13,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
-from mnist_nn.networks import Cnv2_FC2
+from mnist_nn.networks import LeNet, MLPNet
 
 
 class Trainer(object):
@@ -113,8 +113,7 @@ class Trainer(object):
                   train_losses.append(loss.item())
                   train_counter.append((batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
                   # Save the state_dict of the network and optimizer if the training has to stop so it can be resumed
-                  # torch.save(network.state_dict(), 'results/model.pth')
-                  # torch.save(optimizer.state_dict(), 'results/optimizer.pth')
+                  # Also stores the current epoch and state of the Trainer
                   self.save_checkpoint(epoch)
 
 
@@ -156,6 +155,8 @@ class Trainer(object):
             # Train and test for each epoch
             self.train(epoch)
             self.test()
+        # Saving the trained model
+        self.save_checkpoint(epoch = self.n_epochs, final = True)
         self.plot_results()
 
 
@@ -171,18 +172,23 @@ class Trainer(object):
         plt.ylabel('negative log likelihood loss')
         plt.show()
 
-    def save_checkpoint(self, epoch):
+    def save_checkpoint(self, epoch, final=False):
         '''Saves the state of the training in a checkpoint.tar file containing:
             - Last epoch number
             - State of the network
             - State of the optimizer
             - Attributes of the trainer'''
+        if final:
+            path = 'results/trained_' + self.network.name + '.tar'
+        else:
+            path = 'results/checkpoint_' + self.network.name + '.tar'
+
         torch.save({
             'epoch': epoch,
             'network_state_dict' : self.network.state_dict(),
             'optimizer_state_dict' : self.optimizer.state_dict(),
             'trainer' : self
-        }, 'results/checkpoint.tar')
+        }, path)
 
     def resume_training(self, network, optimizer):
         '''Loads the last stored step of the training process and resume the training'''
@@ -203,6 +209,8 @@ class Trainer(object):
             # Train and test for each epoch
             self.train(epoch)
             self.test()
+        # Saving the trained model
+        self.save_checkpoint(epoch = self.n_epochs, final = True)
         self.plot_results()
 
 if __name__ == "__main__":
@@ -210,9 +218,11 @@ if __name__ == "__main__":
     learning_rate = 0.01
     momentum = 0.5
     # Network and Optimizer initialization
-    network = Cnv2_FC2()
-    optimizer = optim.SGD(network.parameters(), lr=learning_rate,
-                                                momentum=momentum)
+    # network = LeNet()
+    network = MLPNet()
+    optimizer = optim.SGD(network.parameters(),
+                          lr = learning_rate,
+                          momentum = momentum)
     # Trainer initialization
     trainer = Trainer(network          = network,
                       optimizer        = optimizer,
