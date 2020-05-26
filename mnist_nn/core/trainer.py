@@ -113,8 +113,9 @@ class Trainer(object):
                   train_losses.append(loss.item())
                   train_counter.append((batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
                   # Save the state_dict of the network and optimizer if the training has to stop so it can be resumed
-                  torch.save(network.state_dict(), 'results/model.pth')
-                  torch.save(optimizer.state_dict(), 'results/optimizer.pth')
+                  # torch.save(network.state_dict(), 'results/model.pth')
+                  # torch.save(optimizer.state_dict(), 'results/optimizer.pth')
+                  self.save_checkpoint(epoch)
 
 
     def test(self):
@@ -138,7 +139,7 @@ class Trainer(object):
         with torch.no_grad():
             for data, target in test_loader:
                 output = network(data) # Actual output of the network given the input data
-                test_loss += F.nll_loss(output, target, size_average=False).item()
+                test_loss += F.nll_loss(output, target).item()
                 pred = output.data.max(1, keepdim=True)[1]
                 correct += pred.eq(target.data.view_as(pred)).sum()
                 test_loss /= len(test_loader.dataset)
@@ -148,6 +149,7 @@ class Trainer(object):
                 100. * correct / len(test_loader.dataset)))
 
     def start_train_test(self):
+        '''Launch a succession of Test and Train steps for n_epochs times'''
         # Training Routine
         self.test()
         for epoch in range(1, self.n_epochs + 1):
@@ -158,6 +160,9 @@ class Trainer(object):
 
 
     def plot_results(self):
+        '''Plots the results of the training:
+            - Train loss against number of instances processed
+            - Test loss against number of instances processed'''
         fig = plt.figure()
         plt.plot(self.train_counter, self.train_losses, color='blue')
         plt.scatter(self.test_counter, self.test_losses, color='red')
@@ -166,7 +171,39 @@ class Trainer(object):
         plt.ylabel('negative log likelihood loss')
         plt.show()
 
+    def save_checkpoint(self, epoch):
+        '''Saves the state of the training in a checkpoint.tar file containing:
+            - Last epoch number
+            - State of the network
+            - State of the optimizer
+            - Attributes of the trainer'''
+        torch.save({
+            'epoch': epoch,
+            'network_state_dict' : self.network.state_dict(),
+            'optimizer_state_dict' : self.optimizer.state_dict(),
+            'trainer' : self
+        }, 'results/checkpoint.tar')
 
+    def resume_training(self, network, optimizer):
+        '''Loads the last stored step of the training process and resume the training'''
+        # Load the checkpoint dictionary
+        checkpoint = torch.load('results/checkpoint.tar')
+        # Last epoch of the training
+        checkpoint_epoch = checkpoint['epoch']
+        # Change the state of the network and optimizer
+        network.load_state_dict(checkpoint['network_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        # Updates the trainer's attributes
+        self.__dict__.update(checkpoint['trainer'].__dict__)
+
+        # Resumes the training process
+        print('\nResuming training process\n')
+        self.test()
+        for epoch in range(checkpoint_epoch, self.n_epochs + 1):
+            # Train and test for each epoch
+            self.train(epoch)
+            self.test()
+        self.plot_results()
 
 if __name__ == "__main__":
     # Learning hyperparameters

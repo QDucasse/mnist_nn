@@ -23,7 +23,7 @@ class Cnv2_FC2(nn.Module):
         - Function - Dropout:
         - Layer    - FullyConnected:
         - Function - LogSoftMax:'''
-        
+
     def __init__(self):
         super(Cnv2_FC2, self).__init__()
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
@@ -39,4 +39,4 @@ class Cnv2_FC2(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        return F.log_softmax(x)
+        return F.log_softmax(x,dim=1)

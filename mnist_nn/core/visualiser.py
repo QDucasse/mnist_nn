@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 class Visualiser(object):
-    def __init__(self,batch_size=1000):
+    def __init__(self,batch_size):
         self.loader = torch.utils.data.DataLoader(
             torchvision.datasets.MNIST('./files', download=True,
                                         transform=torchvision.transforms.Compose([
@@ -39,5 +39,5 @@ class Visualiser(object):
 
 if __name__ == "__main__":
     # Visualiser initialization and image display
-    visualiser = Visualiser()
+    visualiser = Visualiser(batch_size = 1000)
     visualiser.display_6items()
