@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 class Visualiser(object):
     def __init__(self,batch_size):
         self.loader = torch.utils.data.DataLoader(
-            torchvision.datasets.MNIST('./files', download=True,
+            torchvision.datasets.MNIST('data', download=True,
                                         transform=torchvision.transforms.Compose([
                                         torchvision.transforms.ToTensor(),
                                         torchvision.transforms.Normalize((0.1307,), (0.3081,))])),
